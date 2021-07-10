@@ -15,6 +15,7 @@ import {
   HeaderTitle,
   Form
 } from './styles';
+import { useStorage } from '../../hook/storage';
 
 interface FormData {
   title: string;
@@ -44,17 +45,15 @@ export function RegisterLoginData() {
     resolver: yupResolver(schema)
   });
 
+  const { setLoginData } = useStorage()
+
   async function handleRegister(formData: FormData) {
     const newLoginData = {
       id: String(uuid.v4()),
       ...formData
     }
 
-    const storageKey = '@passmanager:logins'
-    await AsyncStorage.removeItem('@passmanager:password')
-    const loginData = await AsyncStorage.getItem(storageKey)
-    const formattedLoginData: ILoginData[] = loginData ? JSON.parse(loginData) : []
-    await AsyncStorage.setItem(storageKey, JSON.stringify([...formattedLoginData, newLoginData]))
+    await setLoginData(newLoginData)
 
     reset()
   }
